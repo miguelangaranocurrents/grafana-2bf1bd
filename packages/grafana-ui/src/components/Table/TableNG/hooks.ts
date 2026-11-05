@@ -1214,12 +1214,14 @@ export function useNestedColWidths({
 
   const handleNestedColumnWidthsChange = useCallback(
     (newColWidths: ColumnWidths) => {
-      setNestedFieldWidths(
-        nestedVisibleFields.map((f, idx) => {
-          const entry = newColWidths.get(getDisplayName(f));
-          // ColumnWidth always has a width property (both 'resized' and 'measured' variants)
-          return entry != null ? entry.width : nestedFieldWidths[idx];
-        })
+      const next = nestedVisibleFields.map((f, idx) => {
+        const entry = newColWidths.get(getDisplayName(f));
+        // ColumnWidth always has a width property (both 'resized' and 'measured' variants)
+        return entry != null ? entry.width : nestedFieldWidths[idx];
+      });
+      // avoid re-rendering every nested grid when the reported widths did not actually change
+      setNestedFieldWidths((current) =>
+        current.length === next.length && current.every((w, i) => w === next[i]) ? current : next
       );
     },
     [nestedVisibleFields, nestedFieldWidths]
