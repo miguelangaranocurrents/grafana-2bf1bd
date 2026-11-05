@@ -159,6 +159,16 @@ function reduceSeriesToRows(
         if (t) {
           f.type = t;
         }
+        // Values reduced from text fields (e.g. "200") must be real numbers in a number field,
+        // otherwise downstream numeric code (ranges, scales) receives strings
+        if (f.type === FieldType.number) {
+          for (let i = 0; i < f.values.length; i++) {
+            const v = f.values[i];
+            if (typeof v === 'string') {
+              f.values[i] = parseFloat(v);
+            }
+          }
+        }
       }
     }
 
